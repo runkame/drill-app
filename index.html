@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- <title>ドリル学習</title> -->
+<header class="header-container">
+  <!-- <h1>ドリル学習</h1> -->
+  <!-- <div class="progress-box" id="progress"></div> -->
+</header>
+  <style>
+    :root {
+      --neumorphic-light: #e0e5ec;
+      --neumorphic-dark: #a7aab1;
+      --neumorphic-bg: #ebf0f7;
+      --main-color: #4CAF50; /* Green */
+      --accent-color: #8BC34A; /* Light Green */
+      --alt-color: #2196F3; /* Blue */
+      --alt-accent: #64B5F6; /* Light Blue */
+      --text-color: #333;
+      --shadow-light: inset 5px 5px 10px rgba(0, 0, 0, 0.1), inset -5px -5px 10px rgba(255, 255, 255, 0.7);
+      --shadow-dark: -5px -5px 10px rgba(255, 255, 255, 0.7), 5px 5px 10px rgba(0, 0, 0, 0.1);
+      --inner-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.1), inset -3px -3px 6px rgba(255, 255, 255, 0.7);
+      --border-radius: 20px;
+    }
+
+    /* 変更なし：bodyは wrapper で包むための土台 */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--neumorphic-bg);
+      color: var(--text-color);
+      padding: 0 20px; /* 上の余白をさらに狭くするため0に設定 */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+
+    /* 追加: 全体ラッパー */
+    #wrapper {
+      width: 100%;
+      max-width: 420px; /* 元のmax幅380より少し余裕を持たせる */
+      box-sizing: border-box;
+      transform-origin: top center; /* 縮小時の基準位置 */
+      transition: transform 0.2s ease-out;
+    }
+
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 10px;
+    }
+
+    /* 以降は元のCSSそのまま（body → #wrapper内に移動） */
+    h1 {
+      font-size: 1.8em;  /* 少し小さく */
+      margin: 0;
+      color: var(--main-color);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      white-space: nowrap;
+    }
+
+    .overall-progress-container {
+      width: 100%;
+      max-width: 380px;
+      margin-bottom: 5px;
+      padding: 8px;
+      border-radius: var(--border-radius);
+      background-color: var(--neumorphic-bg);
+      box-shadow: var(--inner-shadow);
+      text-align: left;
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .overall-progress-bar {
+      width: 100%;
+      height: 8px;
+      background-color: var(--neumorphic-light);
+      border-radius: 6px;
+      margin-top: 8px;
+      box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1), inset -1px -1px 3px rgba(255,255,255,0.7);
+    }
+
+    .overall-progress-fill {
+      height: 100%;
+      width: 0%;
+      background-color: var(--main-color);
+      border-radius: 6px;
+      transition: width 0.5s ease-out;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 380px;
+      padding: 15px 20px;
+      border-radius: var(--border-radius);
+      background-color: var(--neumorphic-bg);
+      box-shadow: var(--shadow-dark);
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    .progress-box {
+      width: 150px; /* 狭く調整 */
+      font-size: 1em; /* 少し小さめに */
+      font-weight: bold;
+      color: var(--main-color);
+      text-align: center;
+      padding: 10px 8px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--inner-shadow);
+      background-color: var(--neumorphic-bg);
+      white-space: nowrap;
+    }
+
+    .word-box, .meaning-box {
+      width: 100%;
+      margin: 10px auto;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      background-color: var(--neumorphic-bg);
+      box-shadow: var(--inner-shadow);
+      text-align: center;
+      min-height: 3em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      word-break: break-word;
+      box-sizing: border-box;
+    }
+
+    .word-box {
+      font-family: Tahoma, sans-serif;
+      font-size: 2.2em;
+      font-weight: normal;
+      color: var(--text-color);
+      min-height: 80px;
+    }
+    .meaning-box {
+      font-size: 1.6em;
+      color: var(--text-color);
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      border: none;
+      font-size: 1em;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin-top: 10px;
+      background-color: var(--neumorphic-bg);
+      box-shadow: var(--inner-shadow);
+      resize: vertical;
+      color: var(--text-color);
+      box-sizing: border-box;
+    }
+
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    button {
+      flex: 1 1 calc(50% - 15px);
+      max-width: 170px;
+      height: 35px;
+      padding: 0;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: var(--neumorphic-bg);
+      box-shadow: var(--shadow-dark);
+      color: var(--text-color);
+      transition: all 0.2s ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    button:hover {
+      box-shadow: var(--inner-shadow);
+      color: var(--main-color);
+    }
+
+    button:active {
+      box-shadow: var(--inner-shadow);
+      transform: scale(0.98);
+    }
+
+    button:focus {
+      outline: none;
+    }
+
+    button.primary {
+      background-color: var(--main-color);
+      color: white;
+      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2), -5px -5px 10px rgba(255, 255, 255, 0.7);
+    }
+
+    button.primary:hover {
+      background-color: var(--accent-color);
+      box-shadow: var(--inner-shadow);
+      color: white;
+    }
+
+    button.secondary {
+      background-color: var(--alt-color);
+      color: white;
+      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2), -5px -5px 10px rgba(255, 255, 255, 0.7);
+    }
+
+    button.secondary:hover {
+      background-color: var(--alt-accent);
+      box-shadow: var(--inner-shadow);
+      color: white;
+    }
+
+    button.full-width {
+      flex: 1 1 100%;
+      max-width: 100%;
+    }
+
+    #result-box {
+      width: 100%;
+      max-width: 380px;
+      margin-top: 5px;
+      padding: 20px;
+      background-color: var(--neumorphic-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--inner-shadow);
+      font-size: 0.95em;
+      color: var(--text-color);
+      text-align: left;
+      box-sizing: border-box;
+    }
+
+    .result-row {
+      margin-bottom: 8px;
+      line-height: 1.6em;
+    }
+
+    .result-row.monospace {
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      white-space: pre;
+    }
+
+    @media (max-width: 420px) {
+      body {
+        padding: 0 15px;
+      }
+      .header-container {
+        flex-direction: column;
+        gap: 5px;
+      }
+      .progress-box {
+        width: 100%;
+        font-size: 0.95em;
+      }
+      h1 {
+        font-size: 1.6em;
+      }
+      .container {
+        padding: 15px 15px;
+      }
+      .word-box {
+        font-size: 1.8em;
+      }
+      .meaning-box {
+        font-size: 1.3em;
+      }
+      button {
+        flex: 1 1 calc(50% - 10px);
+        font-size: 1em;
+        height: 30px;
+      }
+      .button-container {
+        gap: 10px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <!-- <div id="wrapper">
+    <h1>ドリル学習</h1>
+
+    <div class="overall-progress-container">
+      <div id="overall-progress-text">全体の進捗: 0% (0/0問)</div>
+      <div class="overall-progress-bar">
+        <div class="overall-progress-fill" id="overall-progress-fill"></div>
+      </div>
+    </div> -->
+  <body>
+    <header class="header-container">
+      <h1>ドリル学習</h1>
+      <div class="progress-box" id="progress"></div>
+    </header>
+
+    <div class="overall-progress-container">
+      <div id="overall-progress-text">全体の進捗: 0% (0/0問)</div>
+      <div class="overall-progress-bar">
+        <div class="overall-progress-fill" id="overall-progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- <div class="progress-box" id="progress"></div> -->
+
+    <div class="container" id="start-section">
+      <p>Excelからコピーした単語（左列）・意味（右列）を下の枠内に貼り付けてください。<br>注：枠内では直接編集しないでください。:</p>
+      <textarea id="input-area" placeholder="＜貼り付け後の表示例＞&#10;apple,りんご&#10;cat,ねこ&#10;..."></textarea> 
+      <div class="button-container">  
+        <button class="primary full-width" onclick="startLearning()">学習開始 (S)</button>
+        <button class="secondary full-width" onclick="resetAllData()">全データ削除 (D)</button>
+      </div>
+    </div>
+
+    <div class="container" id="study-section" style="display:none;">
+      <div class="word-box" id="word"></div>
+      <div class="meaning-box" id="meaning"></div>
+      <div class="button-container">
+        <button class="primary" onclick="handleAnswer('Y')">正解 (Y)</button>
+        <button class="secondary" onclick="handleAnswer('N')">不正解 (N)</button>
+        <button onclick="showAnswer()">答え (A)</button>
+        <button onclick="goBack()">一つ戻る (←)</button>
+        <button id="speak-button">🔊 発音 (P)</button>
+        <button onclick="returnToStart()">作成画面へ (C)</button>
+        <button onclick="exportData()" class="full-width">データのダウンロード (E)</button>
+      </div>
+    </div>
+
+    <div id="result-box" style="display:none;">
+      <div id="result-rows"></div>
+    </div>
+  </div> <!-- wrapper end -->
+
+  <script>
+    // 元のJavaScriptはそのまま
+    let fullList = [], wordList = [], currentIndex = 0, wrongWords = [], currentRound = 1;
+    let correctCount = 0, totalCount = 0;
+    const roundStats = [];
+    const STORAGE_KEY = 'wordLearningProgress';
+
+    function saveProgress() {
+      const data = { fullList, wordList, currentIndex, wrongWords, currentRound, correctCount, totalCount, roundStats };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadProgress() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (data) {
+        const parsed = JSON.parse(data);
+        fullList = parsed.fullList;
+        wordList = parsed.wordList;
+        currentIndex = parsed.currentIndex;
+        wrongWords = parsed.wrongWords;
+        currentRound = parsed.currentRound;
+        correctCount = parsed.correctCount || 0;
+        totalCount = parsed.totalCount || 0;
+        roundStats.push(...(parsed.roundStats || []));
+        document.getElementById("start-section").style.display = "none";
+        document.getElementById("study-section").style.display = "block";
+        document.getElementById("result-box").style.display = "block";
+        updateResultDisplay();
+        updateOverallProgress();
+        showNext();
+        return true;
+      }
+      return false;
+    }
+
+    function startLearning() {
+      const input = document.getElementById("input-area").value.trim();
+      fullList = input.split("\n").map(row => {
+        const [word, meaning] = row.split(/\t|,/);
+        return { word: word?.trim() || '', meaning: meaning?.trim() || '', cleared: 0 };
+      }).filter(item => item.word);
+
+      if (fullList.length === 0) {
+        alert("単語・意味のペアを入力してください。");
+        return;
+      }
+
+      wordList = [...fullList];
+      currentIndex = 0;
+      currentRound = 1;
+      wrongWords = [];
+      correctCount = 0;
+      totalCount = 0;
+      roundStats.length = 0;
+      document.getElementById("result-box").style.display = "block";
+      saveProgress();
+      document.getElementById("start-section").style.display = "none";
+      document.getElementById("study-section").style.display = "block";
+      updateResultDisplay();
+      updateOverallProgress();
+      showNext();
+    }
+
+    function showNext() {
+      if (currentIndex >= wordList.length) {
+        const correctInRound = wordList.length - wrongWords.length;
+        roundStats.push({
+          round: currentRound,
+          total: wordList.length,
+          correct: correctInRound,
+          rate: Math.round((correctInRound / wordList.length) * 100)
+        });
+        if (wrongWords.length > 0 && currentRound < 5) {
+          currentRound++;
+          wordList = [...wrongWords];
+          wrongWords = [];
+
+          // シャッフル
+          if (currentRound >= 2) {
+            for (let i = wordList.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [wordList[i], wordList[j]] = [wordList[j], wordList[i]];
+            }
+          }
+
+          currentIndex = 0;
+          alert(`第${currentRound - 1}回が終了しました。\n間違い直しで${currentRound}回目を開始します。`);
+          updateResultDisplay();
+          updateOverallProgress();
+          showNext();
+        } else {
+          alert("お疲れ様でした！すべての学習が終了しました！");
+          updateResultDisplay();
+          saveProgress();
+          updateOverallProgress();
+        }
+        return;
+      }
+      const entry = wordList[currentIndex];
+      document.getElementById("word").textContent = entry.word;
+      document.getElementById("meaning").textContent = "";
+      document.getElementById("progress").textContent = `${currentIndex + 1} / ${wordList.length}（${currentRound}回目）`;
+      saveProgress();
+    }
+
+    function handleAnswer(answer) {
+      if (currentIndex >= wordList.length) return;
+
+      const currentWord = wordList[currentIndex];
+      if (answer === 'N') {
+        wrongWords.push(currentWord);
+      } else if (answer === 'Y') {
+        const original = fullList.find(w => w.word === currentWord.word);
+        if (original) original.cleared = currentRound;
+      }
+      currentIndex++;
+      totalCount++;
+      if(answer === 'Y') correctCount++;
+      updateResultDisplay();
+      updateOverallProgress();
+      showNext();
+    }
+
+    function updateResultDisplay() {
+      const resultEl = document.getElementById("result-rows");
+      if (roundStats.length === 0 && (totalCount === 0 || wordList.length === 0)) {
+        resultEl.innerHTML = "<div style='text-align: center; color: #777;'>まだ学習データがありません</div>";
+        return;
+      }
+
+      resultEl.innerHTML = roundStats.map(stat => {
+        const label = `第${stat.round}回目`;
+        const totalStr = String(stat.total).padStart(3, ' ');
+        const correctStr = String(stat.correct).padStart(3, ' ');
+        const rateStr = String(stat.rate).padStart(3, ' ') + '%';
+        return `<div class='result-row monospace'>${label}　${totalStr}問　${correctStr}問正解　${rateStr}</div>`;
+      }).join("");
+
+      if (totalCount > 0 && currentIndex < wordList.length) {
+        const currentProgressText = `<div class='result-row' style='font-weight: bold;'>現在の正答率: ${totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0}%</div>`;
+        resultEl.innerHTML += currentProgressText;
+      }
+    }
+
+    function updateOverallProgress() {
+      const overallProgressTextEl = document.getElementById('overall-progress-text');
+      const overallProgressFillEl = document.getElementById('overall-progress-fill');
+
+      if (fullList.length === 0) {
+        overallProgressTextEl.textContent = '全体の進捗: 0% (0/0問)';
+        overallProgressFillEl.style.width = '0%';
+        return;
+      }
+
+      // clearedが1以上の単語数をカウント
+      const clearedCount = fullList.filter(item => item.cleared > 0).length;
+      const totalWords = fullList.length;
+      const progressPercentage = totalWords > 0 ? Math.round((clearedCount / totalWords) * 100) : 0;
+
+      overallProgressTextEl.textContent = `全体の進捗: ${progressPercentage}% (${clearedCount}/${totalWords}問)`;
+      overallProgressFillEl.style.width = `${progressPercentage}%`;
+    }
+
+    //「答え(A)」のボタンをトグル化へ
+    //function showAnswer() {
+      //if (currentIndex >= wordList.length) return;
+      //document.getElementById("meaning").textContent = wordList[currentIndex]?.meaning || "";
+    //}
+    function showAnswer() {
+      if (currentIndex >= wordList.length) return;
+      const meaningBox = document.getElementById("meaning");
+      const currentMeaning = wordList[currentIndex]?.meaning || "";
+
+      // すでに表示されている場合は非表示に、それ以外は表示する
+      if (meaningBox.textContent === currentMeaning) {
+        meaningBox.textContent = "";
+      } else {
+        meaningBox.textContent = currentMeaning;
+      }
+    }
+
+    function goBack() {
+      if (currentIndex > 0) currentIndex--;
+      document.getElementById("meaning").textContent = ""; // 答えを隠す
+      showNext();
+    }
+
+    function returnToStart() {
+      //学習データが削除されてしまうので修正
+     //if (confirm('作成画面に戻りますか？現在の学習データはリセットされます。')) {
+        //localStorage.removeItem(STORAGE_KEY);
+        //location.reload();
+
+         // 保存された学習データは削除せずに保持
+      if (confirm('作成画面に戻りますか？')) {
+        document.getElementById("study-section").style.display = "none";
+        document.getElementById("start-section").style.display = "block";
+      }
+    }
+
+    function exportData() {
+      if (fullList.length === 0) {
+        alert("エクスポートするデータがありません。");
+        return;
+      }
+      const exportList = fullList.map(item => `${item.word}\,${item.meaning}\,${item.cleared}`).join("\n");
+      const blob = new Blob(["\uFEFF" + exportList], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'drill_data.csv';
+      document.body.appendChild(a); // For Firefox compatibility
+      a.click();
+      document.body.removeChild(a); // Clean up
+      URL.revokeObjectURL(url);
+    }
+
+    function resetAllData() {
+      if (confirm('すべての学習データを削除して最初からやり直しますか？')) {
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      }
+    }
+
+    document.getElementById("speak-button").addEventListener("click", () => {
+      const word = document.getElementById("word").textContent.trim();
+      if (!word) return;
+      const utter = new SpeechSynthesisUtterance(word);
+      utter.lang = "en-US";
+      const voices = speechSynthesis.getVoices();
+      const enVoice = voices.find(v => v.lang.startsWith("en") && (v.localService || v.name.includes("Google") || v.name.includes("Microsoft")));
+      if (enVoice) utter.voice = enVoice;
+      else console.warn("English voice not found, using default.");
+
+      speechSynthesis.cancel();
+      setTimeout(() => {
+        speechSynthesis.speak(utter);
+      }, 100);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      const key = e.key.toLowerCase();
+      const inCreateScreen = document.getElementById("start-section").style.display !== "none";
+      const inStudyScreen = document.getElementById("study-section").style.display !== "none";
+
+      if (inCreateScreen) {
+        if (key === "s") startLearning();
+        else if (key === "d") resetAllData();
+      } else if (inStudyScreen) {
+        if (key === "y") handleAnswer('Y');
+        else if (key === "n") handleAnswer('N');
+        else if (key === "a") showAnswer();
+        else if (key === "arrowleft") goBack();
+        else if (key === "p") document.getElementById("speak-button").click();
+        else if (key === "c") returnToStart();
+        else if (key === "e") exportData();
+      }
+    });
+
+    window.onload = function() {
+      loadProgress();
+      updateResultDisplay();
+      updateOverallProgress(); // 初期ロード時にも全体進捗バーを更新
+    }
+  </script>
+</body>
+</html>
